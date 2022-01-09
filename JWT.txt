@@ -1,3 +1,8 @@
+Step 1 : Install 'passport-jwt' using `npm i passport-jwt`.
+
+Step 2 : Create `passpot-jwt.js` middleware in confing folder.
+-> write below code in middleware `passport-jwt.js`.
+
 const passport = require('passport');
 const JWTStrategy = require('passport-jwt').Strategy;
 const ExtractJWT = require('passport-jwt').ExtractJwt;
@@ -21,31 +26,23 @@ passport.use(new JWTStrategy(opts, function(jwtPayLoad, done){
             return done(null, false);
         }
     })
-}))
-
+}));
 
 module.exports = passport;
 
 
+Step 3 : Attach in main `index.js` file.
+- const passportLocal = require('./config/passport-local-strategy');
+- const passportJWT = require('./config/passport-jwt-strategy');
 
 
+Step 4 : Add route in `routes/index.js` file of `routes` folder.
+- routes.get('/api_register_jwt', homeController.api_register_jwt);
 
+Step 5 : Install 'jsonwebtoken' using `npm i jsonwebtoken`.
 
-
-
-
-
-
-const passportLocal = require('./config/passport-local-strategy');
-const passportJWT = require('./config/passport-jwt-strategy');
-
-
-
-
-
-
-
-
+Step 6 : Attach in main `index.js` file.
+- const jsonwebtoken = require('jsonwebtoken');
 
 
 
