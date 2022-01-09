@@ -1,0 +1,55 @@
+http://console.developers.google.com/
+
+1> Terminal
+npm install passport-google-oauth
+npm install crypto
+
+2> Create Middleware
+const passport = require('passport');
+
+const googleStrategy = require('passport-google-oauth').OAuth2Strategy;
+const crypto = require('crypto');
+const User = require('../models/user');
+
+passport.use(new googleStrategy({
+    clientID : "442070901052-qn2gbvqrs6u3uqcqclih4dr2vau3lhpe.apps.googleusercontent.com",
+    clientSecret : "68HaC8mf33WvEdYlQGt6CxGW",
+    callbackURL : "http://localhost:8001/users/auth/google/callback"
+},
+function(accessToken, refreshToken, profile, done){
+    User.findOne({email : profile.emails[0].value }).exec(function(err, user){
+        if(err){
+            console.log('error in google strategy-passport',err); return false;
+        }
+        console.log(profile);
+        if(user){
+            return done(null, user);
+        }else{
+            User.create({
+                name : profile.displayName,
+                email : profile.emails[0].value,
+                password : crypto.randomBytes(20).toString('hex')
+            },function(err,user){
+                if(err){
+                    console.log('error in creating user google passport-strategy',err);
+                    return; 
+                }
+                return done(null,user);
+            })
+        }
+    })
+}
+))
+module.exports = passport;
+ 
+3> index.js(main file)
+const passportGoogle = require('./config/passport-google-oauth2-strategy');
+
+4> routes/index.js
+routes.get('/auth/google', passport.authenticate('google', {scope : ['profile','email']}));
+routes.get('/auth/google/callback',passport.authenticate('google',{failureRedirect:'/users/sign-in'}), userController.createSession);
+
+5> login.ejs
+   <p>
+        <a href="/users/auth/google">Google Sign-in/Sign-up</a>
+    </p>

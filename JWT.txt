@@ -1,0 +1,91 @@
+const passport = require('passport');
+const JWTStrategy = require('passport-jwt').Strategy;
+const ExtractJWT = require('passport-jwt').ExtractJwt;
+
+const User = require('../models/user');
+let opts = {
+    jwtFromRequest : ExtractJWT.fromAuthHeaderAsBearerToken(),
+    secretOrKey : 'RNW'
+}
+
+passport.use(new JWTStrategy(opts, function(jwtPayLoad, done){
+    User.findById(jwtPayLoad._id, function(err, user){
+        if(err){
+            console.log("error in finding user from JWT",err);
+            return;
+        }
+        if(user){
+            console.log(user);
+            return done(err, user);
+        }else{
+            return done(null, false);
+        }
+    })
+}))
+
+
+module.exports = passport;
+
+
+
+
+
+
+
+
+
+
+
+const passportLocal = require('./config/passport-local-strategy');
+const passportJWT = require('./config/passport-jwt-strategy');
+
+
+
+
+
+
+
+
+
+
+
+const User = require('../../../models/user');
+const jwt = require('jsonwebtoken');
+const { json } = require('express');
+
+module.exports.createSession = async function(req,res){
+    try{
+        let user =  await User.findOne({email : req.body.email});
+        if(!user || user.password != req.body.password){
+            return res.json(422, {
+                message : "Invalid username & password"
+            })
+        }else{
+            return res.json(200,{
+                message : "Sign in successfully and your web token is generated",
+                data :{
+                    token : jwt.sign(user.toJSON(), 'codeial',{expiresIn : '100000'})
+                }
+            })
+        }
+    }
+    catch(err){
+        // console.log(err.message);
+        return res.json(500, {
+            message : "internal server error"
+        });
+    }
+}
+
+
+
+
+
+router.delete('/:id',passport.authenticate('jwt',{session : false }) ,post_api.destroy);
+
+
+
+
+
+
+

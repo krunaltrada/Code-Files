@@ -1,0 +1,85 @@
+Step 1 : Create 'nodemailer.js' middleware in 'config' folder
+
+--> Put Below Code inside nodemailer.js
+npm i nodemailer
+
+const nodemailer = require('nodemailer');
+
+let transporter = nodemailer.createTransport({
+    service : 'gmail',
+    host : 'smtp.gmail.com',
+    port : 587,
+    secure : false,
+    auth : {
+        user : "rwn2developerfaculty@gmail.com",
+        pass : "Rwn2faculty!@#"
+    }
+});
+
+let renderTemplate = (data, relativePath) => {
+    let mailHTML;
+    ejs.renderFile(
+        path.join(__dirname, '../views/mailers', relativePath),
+        data,
+        function(err, template){
+            if(err){
+                console.log('error in rendering template'); return
+            }
+            mailHTML = template;
+        }
+    )
+    return mailHTML;
+};
+
+module.exports = {
+    transporter : transporter,
+    renderTemplate : renderTemplate
+}
+
+
+Step 2 : Create a 'mailers' folder inside 'views' folder.
+Step 3 : Create 'comment_mailer.js' inside 'mailers' folder.
+
+--> Put Below Code inside comment_mailer.js
+const nodeMailer = require('../../config/nodemailer');  // middleware
+
+exports.newComment = (email) => {
+    // console.log("inside newComment mailer");
+    // console.log(email);
+    nodeMailer.transporter.sendMail({
+        from : 'rwn2developerfaculty@gmail.com',
+        to : email,
+        subject : "New Comment Published",
+        html : '<h1>Yup, Your comment is now Published</h1>',
+    },(err,info) => {
+        if(err){
+            console.log("Error in sending mail",err);
+            return;
+        }
+        console.log("message send",info);
+        return;
+    })
+}
+
+Step 4 : Give Link In Login Page
+--> <a href="/lostPassword">Lost Password</a>
+
+Step 5 : Create route in 'routes/index.js'.
+--> routes.get('/lostPassword',homeController.lostPassword);
+
+Step 6 : Create Module in 'controllers/homeController.js'.
+--> module.exports.lostPassword = (req,res)=>{ return res.render('lostPassword'); }
+
+Step 7 : Create 'lostPassword.ejs' Page in 'views' folder.
+--> Create Form With email & submit field in 'lostPassword.ejs'.
+--> <form action="/checkEmail" method="post"></form>
+
+Step 8 : Create route in 'routes/index.js'.
+--> routes.post('/checkEmail',homeController.checkEmail);
+
+Step 9 : Create Module in 'controllers/homeController.js'.
+--> const newComment = require('../views/mailers/comment_mailer');
+module.exports.checkEmail = (req,res)=>{
+	// console.log(req.body.email);
+	newComment.newComment(req.body.email);
+}
