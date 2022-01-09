@@ -44,6 +44,16 @@ Step 5 : Install 'jsonwebtoken' using `npm i jsonwebtoken`.
 Step 6 : Attach in main `index.js` file.
 - const jsonwebtoken = require('jsonwebtoken');
 
+Step 7 : In HomeController create module and export.
+module.exports.api_register_jwt = (req,res)=>{
+        return res.json({
+            'msg' : "jwt working",
+            'token' : jwt.sign('krunal','secret'),
+        });
+}
+
+Step 8 : Test It With Postman 'GET' method.
+
 
 
 const User = require('../../../models/user');
@@ -73,7 +83,6 @@ module.exports.createSession = async function(req,res){
         });
     }
 }
-
 
 
 
